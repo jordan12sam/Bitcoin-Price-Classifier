@@ -265,3 +265,10 @@ def train_model():
         validation_data=(val_x, val_y),
         callbacks = [tensorboard, checkpoint],
         shuffle = False)
+
+#get the price history as a list of percentage change in price
+def price_history(mask=True):
+    data = get_data()
+    data = data["close"].pct_change()
+    data.dropna(axis=0, inplace=True)
+    return data[mask]
