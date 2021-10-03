@@ -94,3 +94,12 @@ def feature_importance(X,y,X_columns):
             importance.append(importances[indices[f]])
     mask = [x > 0.015 for x in importance]
     return [feats[i] for i in range(len(feats)) if mask[i]]
+
+#keep only independent features
+#removes any features that are too strongly correlated
+def drop_dependent_features(df):
+    corr_matrix = df.corr().abs()
+    upper = corr_matrix.where(np.triu(np.ones(corr_matrix.shape), k=1).astype(np.bool))
+    to_drop = [c for c in upper.columns if any(upper[c] > 0.95)]
+    df = df.drop(to_drop, axis=1)
+    return df.columns
