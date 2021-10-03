@@ -1,6 +1,7 @@
 import itertools
 
 import pandas as pd
+import numpy as np
 from talib import abstract, get_function_groups
 
 
@@ -62,3 +63,18 @@ def get_indicators(df, indicators_list=None):
             indicators_df[indicator] = func_data
     indicators_df.dropna(axis=0, inplace=True)
     return indicators_df
+
+#calculate the log returns of the data to make it stationary
+def log_returns(df):
+    for column in df.columns:
+        df[column] = np.log(df[column]) - np.log(df[column].shift(1))
+    df.dropna(axis=0, inplace=True)
+    return df
+
+#standardise indicators to mean 0, std 1
+def standardise(df):
+    for column in df.columns:
+        mean = df[column].mean()
+        std = df[column].std()
+        df[column] = [(x-mean)/std for x in df[column]]
+    return df
