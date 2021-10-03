@@ -1,4 +1,5 @@
 import itertools
+from collections import deque
 
 import pandas as pd
 import numpy as np
@@ -103,3 +104,19 @@ def drop_dependent_features(df):
     to_drop = [c for c in upper.columns if any(upper[c] > 0.95)]
     df = df.drop(to_drop, axis=1)
     return df.columns
+
+#sort data into sequences
+def sequence_data(data, targets):
+    sequential_data = []
+    #sequence length
+    window = 15
+    #deque acts like a moving window
+    prev_days = deque(maxlen=window)
+
+    for timestamp in data.index:
+        prev_days.append([data[column][timestamp] for column in data.columns])
+        if len(prev_days) == window:
+            sequential_data.append([np.array(prev_days), 
+                                    targets[timestamp], 
+                                    timestamp])
+    return np.array(sequential_data)
