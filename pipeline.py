@@ -120,3 +120,12 @@ def sequence_data(data, targets):
                                     targets[timestamp], 
                                     timestamp])
     return np.array(sequential_data)
+
+#split the data into training and validation sets
+#splits in a 1:0.2 ratio
+def validation_split(sequences):
+    proportion = 0.2
+    split = int(sequences.shape[0]*proportion)
+    train = sequences[:-split]
+    val = sequences[-split:]
+    return train, val
