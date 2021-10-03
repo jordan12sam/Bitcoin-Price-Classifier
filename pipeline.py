@@ -1,11 +1,18 @@
 import itertools
 from collections import deque
 from random import random, shuffle
+from datetime import datetime
 
 import pandas as pd
 import numpy as np
 from talib import abstract, get_function_groups
 from sklearn.ensemble import RandomForestClassifier
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense, LSTM, Flatten
+from tensorflow.keras.callbacks import TensorBoard, ModelCheckpoint
+from tensorflow.keras.optimizers import Adam
 
 
 FEE = 0
@@ -225,3 +232,36 @@ def create_model_data():
     val_x, val_y, val_ts = target_split(val)
 
     return train_x, train_y, train_ts, val_x, val_y, val_ts
+
+#train the model
+def train_model():
+
+    #get data to train model
+    train_x, train_y, train_ts, val_x, val_y, val_ts = create_model_data()
+
+    #define model structure
+    #an lstm is used
+    data_shape = (len(train_x[0]), len(train_x[0][0]))
+    model = Sequential([
+        LSTM(units=128, input_shape=data_shape, activation="relu", return_sequences=True),
+        Flatten(),
+        Dense(units=2, activation="softmax")
+    ])
+
+    opt = Adam(lr=0.02, decay=1e-6)
+
+    model.compile(loss='sparse_categorical_crossentropy',
+                optimizer=opt,
+                metrics=['accuracy'])
+
+    time = datetime.now().strftime("%Y-%m-%d--%H-%M-%S")
+    tensorboard = TensorBoard(log_dir=f"logs/{time}")
+    checkpoint = ModelCheckpoint("models/{}.hd5".format(f"{time}", monitor='val_accuracy', verbose=0, save_best_only=True, mode='max'))
+
+    history = model.fit(
+        train_x, train_y,
+        batch_size = 1,
+        epochs = 16,
+        validation_data=(val_x, val_y),
+        callbacks = [tensorboard, checkpoint],
+        shuffle = False)
