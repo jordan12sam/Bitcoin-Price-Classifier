@@ -2,6 +2,8 @@ import itertools
 from collections import deque
 from random import random, shuffle
 from datetime import datetime
+import warnings
+warnings.filterwarnings("ignore")
 
 import pandas as pd
 import numpy as np
