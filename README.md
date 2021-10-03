@@ -11,5 +11,5 @@ And finally the model can be tested in [backtest.py](https://github.com/jordan12
 An accuracy of 0.62 and f1 score of 0.6 was acheived using this method. In testing the model was generally able to match and often even slighlty outperform the market. See the graph below whereby the model outperforms the market by about 65 percentage point; giving a ROI of 144% over a period where bitcoin prices increased by 79%.
 
 &nbsp;
-![lines](images/lines.png)  
+![lines](lines.PNG)  
 
