@@ -152,3 +152,30 @@ def balance_data(sequential_data):
         sequential_data.append([seq, target, timestamp])
 
     return np.array(sequential_data)
+
+#split sequences from their target
+def target_split(target_data):
+    x_seq, y_seq, ts_seq = target_data[:,0], target_data[:,1], target_data[:,2]
+
+    #get a list of sequences
+    x = []
+    for i in range(x_seq.shape[0]):
+        sequence = []
+        for j in range(x_seq[i].shape[0]):
+            record = []
+            for k in range(x_seq[i][j].shape[0]):
+                record.append(x_seq[i][j][k])
+            sequence.append(record)
+        x.append(sequence)
+
+    #get a list of buys/sells
+    y = []
+    for i in range(y_seq.shape[0]):
+        y.append(y_seq[i])
+
+    #get a list of timestamps
+    ts = []
+    for i in range(ts_seq.shape[0]):
+        ts.append(ts_seq[i])
+
+    return x, y, ts
