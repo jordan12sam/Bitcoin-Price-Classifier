@@ -179,3 +179,22 @@ def target_split(target_data):
         ts.append(ts_seq[i])
 
     return x, y, ts
+
+#select best indicators to train with
+def select_feats_from_historical_data():
+    data = get_data() 
+    targets = classify_data(data)
+    indicators = get_indicators(data)
+
+    indicators = standardise(indicators)
+    data = log_returns(data)
+
+    timestamps = set(data.index).intersection(set(indicators.index), set(targets.index))
+    data = data.loc[timestamps]
+    indicators = indicators.loc[timestamps]
+    targets = targets[timestamps]
+
+    feats = feature_importance(indicators.values, targets, indicators.columns)
+    feats = drop_dependent_features(indicators.loc[:, feats])
+    feats_list = set([feat.split('-')[0] for feat in feats])
+    return feats_list
