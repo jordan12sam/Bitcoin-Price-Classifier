@@ -3,6 +3,7 @@ import itertools
 import pandas as pd
 import numpy as np
 from talib import abstract, get_function_groups
+from sklearn.ensemble import RandomForestClassifier
 
 
 FEE = 0
@@ -78,3 +79,18 @@ def standardise(df):
         std = df[column].std()
         df[column] = [(x-mean)/std for x in df[column]]
     return df
+
+#rank most important features in predicting the future price using a random forest classifier
+def feature_importance(X,y,X_columns):
+    model = RandomForestClassifier()
+    model.fit(X, y)
+    importances = model.feature_importances_
+    indices = np.argsort(importances)[::-1]
+    feats = []
+    importance = []
+    for f in range(X.shape[1]):
+        if f > 0:
+            feats.append(X_columns[indices[f]])
+            importance.append(importances[indices[f]])
+    mask = [x > 0.015 for x in importance]
+    return [feats[i] for i in range(len(feats)) if mask[i]]
