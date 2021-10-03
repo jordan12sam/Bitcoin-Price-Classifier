@@ -1,4 +1,7 @@
+import itertools
+
 import pandas as pd
+from talib import abstract, get_function_groups
 
 
 FEE = 0
@@ -30,3 +33,32 @@ def classify_data(df):
     df.dropna(inplace=True)
     targets.dropna(inplace=True)
     return targets
+
+#return a dataframe of indicators given a dataframe of ochlv data
+#by default gives a large amount of indicators
+#specific indicators can be selected
+def get_indicators(df, indicators_list=None):
+
+    if not indicators_list:
+        functions_dict = get_function_groups()
+        functions_dict = { key: functions_dict[key] for key in ["Momentum Indicators",
+                                                                "Overlap Studies", 
+                                                                "Price Transform", 
+                                                                "Volume Indicators",
+                                                                "Statistic Functions"] }
+
+        indicators_list = list(itertools.chain.from_iterable(functions_dict.values()))
+        for indicator in ["MAVP"]:
+            indicators_list.remove(indicator)
+    
+    indicators_df = pd.DataFrame()
+    for indicator in indicators_list:
+        func = abstract.Function(indicator)
+        func_data = func(df)
+        if isinstance(func_data, pd.DataFrame):
+            for column in func_data.columns:
+                indicators_df[f"{indicator}-{column}"] = func_data[column]
+        else:
+            indicators_df[indicator] = func_data
+    indicators_df.dropna(axis=0, inplace=True)
+    return indicators_df
