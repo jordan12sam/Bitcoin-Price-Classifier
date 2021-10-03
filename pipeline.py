@@ -198,3 +198,30 @@ def select_feats_from_historical_data():
     feats = drop_dependent_features(indicators.loc[:, feats])
     feats_list = set([feat.split('-')[0] for feat in feats])
     return feats_list
+
+#full pipeline from raw data to ready for training
+def create_model_data():
+    indicators_list = select_feats_from_historical_data()
+    
+    data = get_data()
+    targets = classify_data(data)
+    indicators = get_indicators(data, indicators_list)
+
+    indicators = standardise(indicators)
+    data = log_returns(data)
+
+    timestamps = data.index & indicators.index & targets.index
+    data = data.loc[timestamps]
+    indicators = indicators.loc[timestamps]
+    targets = targets[timestamps]
+
+    data = data.join(indicators, how="inner")
+    data = sequence_data(data, targets)
+    
+    train, val = validation_split(data)
+    train = balance_data(train)
+
+    train_x, train_y, train_ts = target_split(train)
+    val_x, val_y, val_ts = target_split(val)
+
+    return train_x, train_y, train_ts, val_x, val_y, val_ts
