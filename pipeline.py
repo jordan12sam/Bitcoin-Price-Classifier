@@ -1,5 +1,6 @@
 import itertools
 from collections import deque
+from random import random, shuffle
 
 import pandas as pd
 import numpy as np
@@ -129,3 +130,25 @@ def validation_split(sequences):
     train = sequences[:-split]
     val = sequences[-split:]
     return train, val
+
+#balance the amount of buys and sells
+def balance_data(sequential_data):
+    buys = []
+    sells = []
+
+    for seq, target, timestamp in sequential_data:
+        if target == 0:
+            sells.append(np.array([seq, target, timestamp]))
+        elif target == 1:
+            buys.append(np.array([seq, target, timestamp]))
+
+    lower = min(len(buys), len(sells))
+    buys, sells = buys[:lower], sells[:lower]
+    balanced_data = buys + sells
+    shuffle(balanced_data)
+
+    sequential_data = []
+    for seq, target, timestamp in balanced_data:
+        sequential_data.append([seq, target, timestamp])
+
+    return np.array(sequential_data)
